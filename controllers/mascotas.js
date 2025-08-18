@@ -8,7 +8,7 @@ class mascotasController{
     //post
     async create(req,res){
         try{
-            const data = mascotasModel.create(req.body);
+            const data = await mascotasModel.create(req.body);
             res.status(201).json(data)
         }catch(e){
             res.status(500).send(e);
