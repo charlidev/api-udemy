@@ -1,27 +1,34 @@
-using Microsoft.AspNetCore.Mvc;
+@model List<Alumno>
+@{
+    var carreras = (List<Carrera>)ViewBag.Carreras;
+    int? carreraId = ViewBag.CarreraId as int?;
+}
 
-public class CarrerasController : Controller
+<h2>Carreras</h2>
+
+<form method="get">
+    <select name="carreraId">
+        <option value="">-- Selecciona --</option>
+        @foreach (var c in carreras)
+        {
+            <option value="@c.CarreraId" selected="@(carreraId==c.CarreraId)">@c.Nombre</option>
+        }
+    </select>
+    <button type="submit">Ver alumnos</button>
+</form>
+
+@if (Model.Count > 0)
 {
-    private readonly SchoolRepo _repo;
-    public CarrerasController(SchoolRepo repo) { _repo = repo; }
-
-    public IActionResult Index(int? carreraId)
-    {
-        try
+    <h3>Alumnos</h3>
+    <table border="1" cellpadding="5">
+        <tr><th>Alumno</th><th>Email</th><th></th></tr>
+        @foreach (var a in Model)
         {
-            ViewBag.Carreras = _repo.GetCarreras();
-            ViewBag.CarreraId = carreraId;
-
-            var alumnos = carreraId.HasValue
-                ? _repo.GetAlumnosPorCarrera(carreraId.Value)
-                : new List<Alumno>();
-
-            return View(alumnos);
+            <tr>
+                <td>@a.ApellidoPaterno @a.ApellidoMaterno @a.Nombre</td>
+                <td>@a.Email</td>
+                <td><a href="/Alumnos/Detalle?alumnoId=@a.AlumnoId">Detalle</a></td>
+            </tr>
         }
-        catch (Exception ex)
-        {
-            ViewBag.Error = ex.Message;
-            return View("Error");
-        }
-    }
+    </table>
 }
