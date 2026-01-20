@@ -1,63 +1,40 @@
-public IActionResult Edit(int alumnoId)
+@model AlumnoEditVM
+
+<h2>Editar alumno</h2>
+
+<form method="post">
+    <input type="hidden" name="AlumnoId" value="@Model.AlumnoId" />
+
+    <div>
+        <label>Email</label>
+        <input name="Email" value="@Model.Email" />
+    </div>
+
+    <div>
+        <label>Dirección</label>
+        <input name="Direccion" value="@Model.Direccion" />
+    </div>
+
+    <div>
+        <label>Teléfono</label>
+        <input name="Telefono" value="@Model.Telefono" />
+    </div>
+
+    <div>
+        <label>Carrera</label>
+        <select name="CarreraId">
+            @foreach (var c in Model.Carreras)
+            {
+                <option value="@c.CarreraId" selected="@(Model.CarreraId==c.CarreraId)">@c.Nombre</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit">Guardar</button>
+    <a href="/Alumnos/Detalle?alumnoId=@Model.AlumnoId">Cancelar</a>
+</form>
+
+@if (!ViewData.ModelState.IsValid)
 {
-    try
-    {
-        var a = _repo.GetAlumno(alumnoId);
-        if (a == null) return NotFound();
-
-        var vm = new AlumnoEditVM
-        {
-            AlumnoId = a.AlumnoId,
-            Email = a.Email,
-            Direccion = a.Direccion,
-            Telefono = a.Telefono,
-            CarreraId = a.CarreraId,
-            Carreras = _repo.GetCarreras()
-        };
-        return View(vm);
-    }
-    catch (Exception ex)
-    {
-        ViewBag.Error = ex.Message;
-        return View("Error");
-    }
-}
-
-[HttpPost]
-public IActionResult Edit(AlumnoEditVM vm)
-{
-    try
-    {
-        if (string.IsNullOrWhiteSpace(vm.Email))
-            ModelState.AddModelError("", "Email es requerido");
-
-        if (!ModelState.IsValid)
-        {
-            vm.Carreras = _repo.GetCarreras();
-            return View(vm);
-        }
-
-        _repo.UpdateAlumnoEditable(vm.AlumnoId, vm.Email, vm.Direccion, vm.Telefono, vm.CarreraId);
-        return RedirectToAction("Detalle", new { alumnoId = vm.AlumnoId });
-    }
-    catch (Exception ex)
-    {
-        ViewBag.Error = ex.Message;
-        return View("Error");
-    }
-}
-
-[HttpPost]
-public IActionResult Eliminar(int alumnoId)
-{
-    try
-    {
-        _repo.EliminarAlumno(alumnoId); // SP: solo borra si no hay pagos
-        return RedirectToAction("Index", "Carreras");
-    }
-    catch (Exception ex)
-    {
-        ViewBag.Error = ex.Message;
-        return View("Error");
-    }
+    <p style="color:red">Revisa los campos</p>
 }
