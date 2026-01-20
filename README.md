@@ -1,43 +1,27 @@
-using System.Data.SqlClient;
+using Microsoft.AspNetCore.Mvc;
 
-public class Db
+public class CarrerasController : Controller
 {
-    private readonly string _cs;
+    private readonly SchoolRepo _repo;
+    public CarrerasController(SchoolRepo repo) { _repo = repo; }
 
-    public Db(IConfiguration config)
-    {
-        _cs = config.GetConnectionString("DefaultConnection")!;
-    }
-
-    public SqlConnection GetConn()
+    public IActionResult Index(int? carreraId)
     {
         try
         {
-            var conn = new SqlConnection(_cs);
-            // NO abrimos aquí, solo creamos
-            return conn;
-        }
-        catch (SqlException ex)
-        {
-            // Aquí cumples manejo de excepciones
-            throw new Exception("Error al crear la conexión a la BD", ex);
-        }
-    }
+            ViewBag.Carreras = _repo.GetCarreras();
+            ViewBag.CarreraId = carreraId;
 
-    // Método SOLO para pruebas (opcional pero bien visto)
-    public bool TestConexion(out string mensaje)
-    {
-        try
-        {
-            using var conn = new SqlConnection(_cs);
-            conn.Open();
-            mensaje = "Conexión exitosa";
-            return true;
+            var alumnos = carreraId.HasValue
+                ? _repo.GetAlumnosPorCarrera(carreraId.Value)
+                : new List<Alumno>();
+
+            return View(alumnos);
         }
         catch (Exception ex)
         {
-            mensaje = ex.Message;
-            return false;
+            ViewBag.Error = ex.Message;
+            return View("Error");
         }
     }
 }
